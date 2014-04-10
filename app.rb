@@ -66,7 +66,14 @@ get '/script/:id' do
 end
 
 post '/at' do
+  content_type :json
+  request.body.rewind
 
+  payload = JSON.parse request.body.read
+
+  response = RestClient.get payload["url"]
+
+  {:message => "script has been run...", :result => response.to_json}.to_json
 end
 
 def run_command(command, previous)
