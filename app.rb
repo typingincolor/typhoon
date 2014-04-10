@@ -3,6 +3,11 @@ require 'json'
 require 'erb'
 require 'net/smtp'
 require 'rest_client'
+require 'mongo'
+
+include Mongo
+
+db = MongoClient.new("localhost").db("script_engine")
 
 configure do
   set :views, "#{File.dirname(__FILE__)}/views"
@@ -20,40 +25,40 @@ post '/script/run' do
   result
 end
 
-post '/script/:id/run' do
+get '/script/:id/run' do
   response = RestClient.get 'http://localhost:4567/script/' + params[:id]
 
   RestClient.post 'http://localhost:4567/script/run', response.to_str, :content_type => :json
 end
 
 post '/script/factory' do
+  content_type :json
+  request.body.rewind
+  payload = JSON.parse request.body.read
+  script = ""
 
+  logger.info payload
+  if payload["action"] == "send_email"
+    logger.info payload["data"]
+    script = erb :email_script, :locals => payload["data"]
+  else
+    logger.error "unknown action"
+    return 500
+  end
+
+  # store the script
+  coll = db.collection "scripts"
+  document = JSON.parse script
+  id = coll.insert document
+
+  {:run => "http://localhost:4567/script/#{id}/run", :script => "http://localhost:4567/script/#{id}"}.to_json
 end
 
 get '/script/:id' do
-    json = <<END_OF_JSON
-{
-    "one": {
-        "command": "erb",
-        "data": {
-            "template": "email",
-            "template_data": {
-                "name": "Andrew"
-            }
-        }
-    },
-    "two": {
-        "command": "email",
-        "data": {
-            "to": "abraithw@gmail.com",
-          	"subject": "test email"
-        }
-    }
-}
-END_OF_JSON
-
+  coll = db.collection "scripts"
+  document = coll.find("_id" => BSON::ObjectId(params[:id])).to_a
   content_type :json
-  json
+  document[0].to_json
 end
 
 post '/at' do
@@ -63,7 +68,9 @@ end
 def run_command(command, previous)
   logger.info(command)
 
-  if command["command"] == "erb"
+  if  command["command"] == "_id"
+    return previous
+  elsif command["command"] == "erb"
     return erb_command command
   elsif command["command"] == "email"
     return email_command command, previous

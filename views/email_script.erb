@@ -1,0 +1,18 @@
+{
+    "one": {
+        "command": "erb",
+        "data": {
+            "template": "email",
+            "template_data": {
+                "name": <%= name.to_json %>
+            }
+        }
+    },
+    "two": {
+        "command": "email",
+        "data": {
+            "to": <%= to.to_json %>,
+            "subject": <%= subject.to_json %>
+        }
+    }
+}
