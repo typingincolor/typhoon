@@ -11,12 +11,34 @@ Calls the specified url at a given point in time (omly works for now...)
 
 `curl -X POST -d @test_at_call.json http://localhost:4567/at`
 
+example:
+
+```json
+{
+  "at": "now",
+  "url": "http://localhost:4567/script/534669f6ba8d2c8c91000001/run"
+}
+```
+
 ## script factory
 
-Builds a script to do a specified, stores it in mongo, and returns a url for the
+Builds a script to do a specified task, stores it in mongo, and returns a url for the
 script.
 
 `curl -X POST -d @test_factory_call.json http://localhost:4567/script/factory`
+
+example request:
+
+```json
+{
+  "action": "send_email",
+  "data": {
+    "to": "abraithw@gmail.com",
+    "subject": "Hello",
+    "name": "Andrew"
+  }
+}
+```
 
 ## script engine
 
@@ -29,6 +51,30 @@ Runs the scripts built by the factory
 ### to run an abritrary script
 
 `curl -X POST -d @test_script.json http://localhost:4567/script/run`
+
+example script:
+
+```json
+{
+    "one": {
+        "command": "erb",
+        "data": {
+            "template": "email",
+            "template_data": {
+                "name": "Andrew"
+            }
+        }
+    },
+    "two": {
+        "command": "email",
+        "data": {
+            "to": "abraithw@gmail.com",
+          	"subject": "test email"
+        }
+    }
+}
+```
+
 
 ## Dependencies
 
