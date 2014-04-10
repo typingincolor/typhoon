@@ -41,9 +41,7 @@ post '/script/factory' do
   payload = JSON.parse request.body.read
   script = ""
 
-  logger.info payload
   if payload["action"] == "send_email"
-    logger.info payload["data"]
     script = erb :email_script, :locals => payload["data"]
   else
     logger.error "unknown action"
@@ -77,8 +75,6 @@ post '/at' do
 end
 
 def run_command(command, previous)
-  logger.info(command)
-
   if  command["command"] == "_id"
     return previous
   elsif command["command"] == "erb"
