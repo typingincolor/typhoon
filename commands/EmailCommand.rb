@@ -7,7 +7,6 @@ end
 
 class EmailCommand < CommandTemplate
     def execute previous
-      puts @command["data"]["to"]
       mail = Mail.new
       mail[:from] = 'email@example.com'
       mail[:to] = @command["data"]["to"]

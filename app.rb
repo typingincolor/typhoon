@@ -65,7 +65,6 @@ end
 post '/at' do
   content_type :json
   request.body.rewind
-
   payload = JSON.parse request.body.read
 
   response = RestClient.get payload["url"]
