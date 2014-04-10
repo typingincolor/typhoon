@@ -1,0 +1,5 @@
+require_relative 'EmailCommand'
+require_relative 'ConcatenateCommand'
+require_relative 'ErbCommand'
+require_relative 'CommandFactory'
+require_relative 'NullCommand'

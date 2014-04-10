@@ -16,7 +16,7 @@ Calls the specified url at a given point in time (omly works for now...)
 Builds a script to do a specified, stores it in mongo, and returns a url for the
 script.
 
-`curl -X POST -d @test_factory_call.json http://localhost/script/factory`
+`curl -X POST -d @test_factory_call.json http://localhost:4567/script/factory`
 
 ## script engine
 
@@ -28,7 +28,7 @@ Runs the scripts built by the factory
 
 ### to run an abritrary script
 
-`curl -X POST -d @test_script.json http://localhost/script/run`
+`curl -X POST -d @test_script.json http://localhost:4567/script/run`
 
 ## Dependencies
 

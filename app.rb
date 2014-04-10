@@ -1,9 +1,9 @@
 require 'sinatra'
 require 'json'
-require 'erb'
-require 'mail'
 require 'rest_client'
 require 'mongo'
+
+require_relative 'commands/init'
 
 include Mongo
 
@@ -13,17 +13,16 @@ configure do
   set :views, "#{File.dirname(__FILE__)}/views"
 end
 
-Mail.defaults do
-  delivery_method :smtp, address: "localhost", port: 8025
-end
-
 post '/script/run' do
   request.body.rewind
   request_payload = JSON.parse request.body.read
   result = ""
 
+  command_factory = CommandFactory.new
+
   request_payload.each do |key, array|
-    result = run_command array, result
+    command = command_factory.build array
+    result = command.execute result
   end
 
   result
@@ -72,41 +71,4 @@ post '/at' do
   response = RestClient.get payload["url"]
 
   {:message => "script has been run...", :result => response.to_json}.to_json
-end
-
-def run_command(command, previous)
-  if  command["command"] == "_id"
-    return previous
-  elsif command["command"] == "erb"
-    return erb_command command
-  elsif command["command"] == "email"
-    return email_command command, previous
-  elsif command["command"] == "concatenate"
-    return concatenate_command command, previous
-  else
-    logger.error "unknown command"
-  end
-end
-
-def erb_command(command)
-  template = command["data"]["template"]
-  return erb :"#{template}", :locals => command["data"]["template_data"]
-end
-
-def email_command(command, previous)
-  mail = Mail.new do
-      from  'email@example.com'
-      to command["data"]["to"]
-      subject command["data"]["subject"]
-      body previous
-  end
-
-  mail.deliver
-
-  return previous
-end
-
-def concatenate_command(command, previous)
-    string_to_concatenate = command["data"]["string"]
-    return "#{previous}#{string_to_concatenate}"
 end
