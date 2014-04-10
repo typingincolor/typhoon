@@ -1,7 +1,7 @@
 require 'sinatra'
 require 'json'
 require 'erb'
-require 'net/smtp'
+require 'mail'
 require 'rest_client'
 require 'mongo'
 
@@ -11,6 +11,10 @@ db = MongoClient.new("localhost").db("script_engine")
 
 configure do
   set :views, "#{File.dirname(__FILE__)}/views"
+end
+
+Mail.defaults do
+  delivery_method :smtp, address: "localhost", port: 8025
 end
 
 post '/script/run' do
@@ -87,26 +91,14 @@ def erb_command(command)
 end
 
 def email_command(command, previous)
-  opts = {}
-  to                 ||= command["data"]["to"]
-  opts[:server]      ||= 'localhost'
-  opts[:port]        ||= 8025
-  opts[:from]        ||= 'email@example.com'
-  opts[:from_alias]  ||= 'Example Emailer'
-  opts[:subject]     ||= command["data"]["subject"]
-  opts[:body]        ||= previous
-
-  msg = <<END_OF_MESSAGE
-From: #{opts[:from_alias]} <#{opts[:from]}>
-To: <#{to}>
-Subject: #{opts[:subject]}
-
-#{opts[:body]}
-END_OF_MESSAGE
-
-  Net::SMTP.start(opts[:server], opts[:port]) do |smtp|
-    smtp.send_message msg, opts[:from], to
+  mail = Mail.new do
+      from  'email@example.com'
+      to command["data"]["to"]
+      subject command["data"]["subject"]
+      body previous
   end
+
+  mail.deliver
 
   return previous
 end
