@@ -1,4 +1,4 @@
-require_relative 'Token'
+require_relative('../commands/Token')
 
 class ScriptEngine
   def run script

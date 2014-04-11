@@ -1,6 +1,6 @@
 class Token
   def initialize
-    @token = {:headers => [], :body => ""}
+    @token = {:headers => [], :body => ''}
   end
 
   def add_header header

@@ -1,5 +1,3 @@
-require_relative '../Token'
-
 class CommandTemplate
   @command = nil
 
