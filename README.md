@@ -1,5 +1,5 @@
-batpoo
-======
+typhoon
+=======
 
 This is based on part of the [Maneuverable Web Architecture][3] at QCon London by [Michael Nygaard][1].
 
