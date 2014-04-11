@@ -20,8 +20,7 @@ class ScriptFactory
     # store the script
     coll = @@db.collection "scripts"
     document = JSON.parse script
-    id = coll.insert document
-    id
+    coll.insert document
   end
 
   def get id
