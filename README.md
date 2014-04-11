@@ -7,7 +7,7 @@ There are three parts to it:
 
 ## 'at' service
 
-Calls the specified url at a given point in time (omly works for "now"...)
+Calls the specified url at a given point in time (only works for "now"...)
 
 `curl -X POST -d @test_at_call.json http://localhost:4567/at`
 
