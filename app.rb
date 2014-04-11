@@ -4,6 +4,7 @@ require 'rest_client'
 require 'mongo'
 
 require_relative 'commands/init'
+require_relative 'Token'
 
 include Mongo
 
@@ -16,16 +17,18 @@ end
 post '/script/run' do
   request.body.rewind
   request_payload = JSON.parse request.body.read
-  result = ""
+  token = Token.new
 
   command_factory = CommandFactory.new
 
   request_payload.each do |key, array|
     command = command_factory.build array
-    result = command.execute result
+    command.execute token
   end
 
-  result
+  logger.info token
+
+  token.get.to_json
 end
 
 get '/script/:id/run' do

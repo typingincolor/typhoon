@@ -1,12 +1,13 @@
+require_relative '../Token'
+
 class CommandTemplate
   @command = nil
-  @previous = nil
 
   def initialize command
     @command = command
   end
 
-  def execute previous
+  def execute token
       raise "must be implemented by a class"
   end
 end

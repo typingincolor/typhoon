@@ -6,15 +6,17 @@ Mail.defaults do
 end
 
 class EmailCommand < CommandTemplate
-    def execute previous
+    def execute token
       mail = Mail.new
       mail[:from] = 'email@example.com'
       mail[:to] = @command["data"]["to"]
       mail[:subject] = @command["data"]["subject"]
-      mail[:body] =  previous
+      mail[:body] = token.get_body
 
       mail.deliver
 
-      return previous
+      token.add_header({:header => "EmailCommand", :value => "OK"})
+      token.set_body mail.to_s
+      token
     end
 end
