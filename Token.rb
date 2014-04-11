@@ -4,9 +4,6 @@ class Token
   end
 
   def add_header header
-    puts header[:header]
-    puts header[:value]
-    puts @token
     @token[:headers].push header
   end
 
