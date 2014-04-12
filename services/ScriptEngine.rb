@@ -6,7 +6,8 @@ class ScriptEngine
 
     command_factory = CommandFactory.new
 
-    script.each do |key, array|
+    test = JSON.parse script
+    test.each do |key, array|
       command = command_factory.build array
       command.execute token
     end

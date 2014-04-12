@@ -15,9 +15,11 @@ post '/script/run' do
 end
 
 get '/script/:id/run' do
-  response = RestClient.get 'http://localhost:4567/script/' + params[:id]
+  script_factory = ScriptFactory.new
+  script_engine = ScriptEngine.new
 
-  RestClient.post 'http://localhost:4567/script/run', response.to_str, :content_type => :json
+  script = script_factory.get params[:id]
+  script_engine.run script
 end
 
 post '/script/factory' do
