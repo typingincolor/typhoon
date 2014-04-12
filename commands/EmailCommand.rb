@@ -2,7 +2,8 @@ require_relative('CommandTemplate')
 require 'mail'
 
 Mail.defaults do
-  delivery_method :smtp, address: "localhost", port: 8025
+  #delivery_method :smtp, address: "localhost", port: 25
+  delivery_method :test
 end
 
 class EmailCommand < CommandTemplate

@@ -1,12 +1,10 @@
 require 'erb'
 require 'tilt'
-require 'mongo'
-
-include Mongo
+require 'moneta'
 
 class ScriptFactory
   def initialize
-    @@db = MongoClient.new('localhost').db('script_engine')
+    @@store = Moneta.new(:File, dir: 'moneta')
   end
 
   def build request
@@ -18,14 +16,12 @@ class ScriptFactory
     end
 
     # store the script
-    coll = @@db.collection 'scripts'
-    document = JSON.parse script
-    coll.insert document
+    counter = @@store.increment('counter').to_s
+    @@store[counter] = script
+    counter
   end
 
-  def get id
-    coll = @@db.collection 'scripts'
-    document = coll.find('_id' => BSON::ObjectId(id)).to_a
-    document[0].to_json
+  def get key
+    @@store[key]
   end
 end

@@ -7,9 +7,6 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
-    bson (1.10.0)
-    bson_ext (1.10.0)
-      bson (~> 1.10.0)
     i18n (0.6.9)
     json (1.7.7)
     mail (2.2.7)
@@ -18,8 +15,7 @@ GEM
       treetop (>= 1.4.5)
     mime-types (2.2)
     minitest (5.3.2)
-    mongo (1.10.0)
-      bson (~> 1.10.0)
+    moneta (0.7.20)
     polyglot (0.3.4)
     rack (1.5.2)
     rack-protection (1.5.3)
@@ -41,9 +37,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bson_ext
   json
   mail
-  mongo
+  moneta
   rest-client
   sinatra

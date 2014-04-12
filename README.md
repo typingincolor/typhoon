@@ -75,12 +75,6 @@ example script:
 }
 ```
 
-
-## Dependencies
-
-You will need to be running mongodb on your local machine. Also you will need
-an SMTP server listening on port 8025 (I used [FakeSMTP][2])
-
  [1]: http://www.michaelnygard.com/
  [2]: http://nilhcem.github.io/FakeSMTP/
  [3]: https://speakerdeck.com/mtnygard/maneuverable-web-architecture
