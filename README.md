@@ -7,7 +7,8 @@ There are three parts to it:
 
 ## 'at' service
 
-Calls the specified url at a given point in time (only works for "now"...)
+Calls the specified url at a given point in time. I have used the [chronic][4] gem to
+parse the date, so it can make sense of pretty much anything...
 
 `curl -X POST -d @test_at_call.json http://localhost:4567/at`
 
@@ -75,6 +76,20 @@ example script:
 }
 ```
 
+## Creating the database
+
+from the projects root directory:
+
+```
+typingincolor:typhoon andrew$ irb
+irb(main):001:0> require './model/Task.rb'
+=> true
+irb(main):002:0> DataMapper.auto_migrate!
+=> DataMapper
+irb(main):003:0> quit
+```
+
  [1]: http://www.michaelnygard.com/
  [2]: http://nilhcem.github.io/FakeSMTP/
  [3]: https://speakerdeck.com/mtnygard/maneuverable-web-architecture
+ [4]: https://github.com/mojombo/chronic
