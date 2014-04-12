@@ -9,3 +9,6 @@ gem 'data_mapper'
 gem 'dm-sqlite-adapter'
 gem 'sqlite3'
 gem 'chronic'
+
+gem 'clockwork'
+gem 'stalker'

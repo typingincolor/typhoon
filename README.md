@@ -89,6 +89,15 @@ irb(main):002:0> DataMapper.auto_migrate!
 irb(main):003:0> quit
 ```
 
+## Running the scheduled tasks
+You will need beanstalk (`brew install beanstalk`)
+
+```
+> beanstalkd &
+> bundle exec clockwork clock.rb
+> bundle exec stalk jobs.rb
+```
+
  [1]: http://www.michaelnygard.com/
  [2]: http://nilhcem.github.io/FakeSMTP/
  [3]: https://speakerdeck.com/mtnygard/maneuverable-web-architecture
