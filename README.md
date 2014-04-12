@@ -78,7 +78,7 @@ example script:
 
 ## Creating the database
 
-from the projects root directory:
+from the project's root directory:
 
 ```
 typingincolor:typhoon andrew$ irb
@@ -90,6 +90,9 @@ irb(main):003:0> quit
 ```
 
 ## Running the scheduled tasks
+
+** Work in Progress **
+
 You will need beanstalk (`brew install beanstalk`)
 
 ```
