@@ -6,5 +6,5 @@ module Clockwork
     Stalker.enqueue job
   end
 
-  every 1.minute, 'run.tasks'
+  every 60.seconds, 'run.tasks'
 end

@@ -99,7 +99,10 @@ You will need beanstalk (`brew install beanstalk`)
 > bundle exec stalk jobs.rb
 ```
 
+Alternative, start beanstalkd and use [foreman][5]
+
  [1]: http://www.michaelnygard.com/
  [2]: http://nilhcem.github.io/FakeSMTP/
  [3]: https://speakerdeck.com/mtnygard/maneuverable-web-architecture
  [4]: https://github.com/mojombo/chronic
+ [5]: https://github.com/ddollar/foreman

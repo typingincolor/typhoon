@@ -1,11 +1,14 @@
 require 'sinatra'
 require 'json'
 require 'chronic'
+require 'thin'
 
 require_relative 'model/Task.rb'
 require_relative 'commands/init'
 require_relative 'services/ScriptEngine'
 require_relative 'services/ScriptFactory'
+
+PORT = settings.port
 
 post '/script/run' do
   request.body.rewind
@@ -32,7 +35,7 @@ post '/script/factory' do
 
   id = script_factory.build payload
 
-  {:run => "http://localhost:4567/script/#{id}/run", :script => "http://localhost:4567/script/#{id}"}.to_json
+  {:run => "http://localhost:#{PORT}/script/#{id}/run", :script => "http://localhost:#{PORT}/script/#{id}"}.to_json
 end
 
 get '/script/:id' do

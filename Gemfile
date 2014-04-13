@@ -9,6 +9,7 @@ gem 'data_mapper'
 gem 'dm-sqlite-adapter'
 gem 'sqlite3'
 gem 'chronic'
+gem 'thin'
 
 gem 'clockwork'
 gem 'stalker'
