@@ -2,4 +2,5 @@ received-emails
 npm-debug.log
 .idea
 moneta
+moneta_results
 *.sqlite

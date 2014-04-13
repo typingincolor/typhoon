@@ -16,7 +16,6 @@ class ScriptFactory
     end
 
     # store the script
-
     counter = @@store.increment('counter').to_s
     @@store[counter] = script
     counter

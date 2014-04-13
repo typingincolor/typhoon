@@ -91,8 +91,6 @@ irb(main):003:0> quit
 
 ## Running the scheduled tasks
 
-** Work in Progress **
-
 You will need beanstalk (`brew install beanstalk`)
 
 ```

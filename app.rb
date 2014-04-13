@@ -1,6 +1,5 @@
 require 'sinatra'
 require 'json'
-require 'rest_client'
 require 'chronic'
 
 require_relative 'model/Task.rb'
