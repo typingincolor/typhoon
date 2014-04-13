@@ -21,9 +21,12 @@ example:
 }
 ```
 
+The URL and the time to call it are stored in a database, and I use [beanstalk][6] and
+[clockwise][7] to call the url when the time comes.
+
 ## script factory
 
-Builds a script to do a specified task, stores it in mongo, and returns a url for the
+Builds a script to do a specified task, stores it in a key/value store (using [moneta][8]), and returns a url for the
 script.
 
 `curl -X POST -d @test_factory_call.json http://localhost:4567/script/factory`
@@ -106,3 +109,6 @@ Alternatively, start beanstalkd and use [foreman][5]
  [3]: https://speakerdeck.com/mtnygard/maneuverable-web-architecture
  [4]: https://github.com/mojombo/chronic
  [5]: https://github.com/ddollar/foreman
+ [6]: http://kr.github.io/beanstalkd/
+ [7]: https://github.com/tomykaira/clockwork
+ [8]: https://github.com/minad/moneta
