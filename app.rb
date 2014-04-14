@@ -50,8 +50,6 @@ post '/script/factory' do
   request.body.rewind
   payload = JSON.parse request.body.read
 
-  logger.info request
-
   hostname = request.host
 
   if !JSON::Validator.validate factory_schema, payload
@@ -62,11 +60,9 @@ post '/script/factory' do
 
   id = script_factory.build payload
 
-  logger.info "HTTP_X_FORWARDED_FOR #{env['HTTP_X_FORWARDED_FOR']}"
-
   if env['HTTP_X_FORWARDED_FOR'] == nil
-    hostname = env['SERVER_NAME']
-    port = env['SERVER_PORT']
+    hostname = request.host
+    port = settings.port
     protocol = env['rack.url_scheme']
   else
     hostname = env['HTTP_X_FORWARDED_HOST']
