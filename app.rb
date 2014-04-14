@@ -20,6 +20,15 @@ at_schema = {
   }
 }
 
+factory_schema = {
+  "type" => "object",
+  "required" => ["action", "data"],
+  "properties" => {
+    "action" => {"type" => "string"},
+    "data" => {"type" => "object"}
+  }
+}
+
 post '/script/run' do
   request.body.rewind
   script = JSON.parse request.body.read
@@ -41,6 +50,10 @@ post '/script/factory' do
   request.body.rewind
   payload = JSON.parse request.body.read
 
+  if (!JSON::Validator.validate(factory_schema, payload))
+    halt 500, "Invalid factory request"
+  end
+
   script_factory = ScriptFactory.new
 
   id = script_factory.build payload
@@ -61,7 +74,7 @@ post '/at' do
   payload = JSON.parse request.body.read
 
   if (!JSON::Validator.validate(at_schema, payload))
-    halt 500, "Invalid at request" 
+    halt 500, "Invalid at request"
   end
 
   at = Chronic.parse(payload['at'], :guess => true)
