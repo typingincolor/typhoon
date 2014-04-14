@@ -14,3 +14,7 @@ gem 'thin'
 gem 'clockwork'
 gem 'stalker'
 gem 'json-schema'
+
+group :development do
+  gem 'forward'
+end
