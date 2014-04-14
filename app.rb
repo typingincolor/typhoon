@@ -50,8 +50,8 @@ post '/script/factory' do
   request.body.rewind
   payload = JSON.parse request.body.read
 
-  if (!JSON::Validator.validate(factory_schema, payload))
-    halt 500, "Invalid factory request"
+  if !JSON::Validator.validate factory_schema, payload
+    halt 500, 'Invalid factory request'
   end
 
   script_factory = ScriptFactory.new
@@ -73,8 +73,8 @@ post '/at' do
   request.body.rewind
   payload = JSON.parse request.body.read
 
-  if (!JSON::Validator.validate(at_schema, payload))
-    halt 500, "Invalid at request"
+  if !JSON::Validator.validate at_schema, payload
+    halt 500, 'Invalid at request'
   end
 
   at = Chronic.parse(payload['at'], :guess => true)
