@@ -69,6 +69,7 @@ GEM
     fastercsv (1.5.5)
     i18n (0.6.9)
     json (1.7.7)
+    json-schema (2.2.2)
     json_pure (1.8.1)
     mail (2.2.7)
       activesupport (>= 2.3.6)
@@ -114,6 +115,7 @@ DEPENDENCIES
   data_mapper
   dm-sqlite-adapter
   json
+  json-schema
   mail
   moneta
   rest-client

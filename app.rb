@@ -2,6 +2,7 @@ require 'sinatra'
 require 'json'
 require 'chronic'
 require 'thin'
+require 'json-schema'
 
 require_relative 'model/Task.rb'
 require_relative 'commands/init'
@@ -9,6 +10,15 @@ require_relative 'services/ScriptEngine'
 require_relative 'services/ScriptFactory'
 
 PORT = settings.port
+
+at_schema = {
+  "type" => "object",
+  "required" => ["at", "url"],
+  "properties" => {
+    "at" => {"type" => "string"},
+    "url" => {"type" => "string"}
+  }
+}
 
 post '/script/run' do
   request.body.rewind
@@ -49,6 +59,10 @@ post '/at' do
   content_type :json
   request.body.rewind
   payload = JSON.parse request.body.read
+
+  if (!JSON::Validator.validate(at_schema, payload))
+    halt 500, "Invalid at request" 
+  end
 
   at = Chronic.parse(payload['at'], :guess => true)
 

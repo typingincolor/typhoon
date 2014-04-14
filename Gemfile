@@ -13,3 +13,4 @@ gem 'thin'
 
 gem 'clockwork'
 gem 'stalker'
+gem 'json-schema'
