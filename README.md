@@ -92,17 +92,14 @@ irb(main):002:0> DataMapper.auto_migrate!
 irb(main):003:0> quit
 ```
 
-## Running the scheduled tasks
+## Running everything...
 
-You will need beanstalk (`brew install beanstalk`)
+You will need beanstalk (`brew install beanstalk`), and [foreman][5]
 
 ```
 > beanstalkd &
-> bundle exec clockwork clock.rb
-> bundle exec stalk jobs.rb
+> foreman start
 ```
-
-Alternatively, start beanstalkd and use [foreman][5]
 
  [1]: http://www.michaelnygard.com/
  [2]: http://nilhcem.github.io/FakeSMTP/

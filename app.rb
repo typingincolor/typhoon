@@ -11,6 +11,15 @@ require_relative 'services/ScriptFactory'
 
 PORT = settings.port
 
+DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/#{ENV['RACK_ENV']}.sqlite")
+DataMapper.finalize
+
+if settings.test?
+  store = Moneta.new :Memory
+else
+  store = Moneta.new :File, dir: 'moneta'
+end
+
 at_schema = {
   "type" => "object",
   "required" => ["at", "url"],
@@ -38,7 +47,7 @@ post '/script/run' do
 end
 
 get '/script/:id/run' do
-  script_factory = ScriptFactory.new
+  script_factory = ScriptFactory.new store
   script_engine = ScriptEngine.new
 
   script = script_factory.get params[:id]
@@ -56,7 +65,7 @@ post '/script/factory' do
     halt 500, 'Invalid factory request'
   end
 
-  script_factory = ScriptFactory.new
+  script_factory = ScriptFactory.new store
 
   id = script_factory.build payload
 
@@ -75,7 +84,7 @@ end
 
 get '/script/:id' do
   content_type :json
-  script_factory = ScriptFactory.new
+  script_factory = ScriptFactory.new store
   script = script_factory.get params[:id]
   if !script
     404

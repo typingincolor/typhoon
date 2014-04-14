@@ -3,8 +3,8 @@ require 'tilt'
 require 'moneta'
 
 class ScriptFactory
-  def initialize
-    @@store = Moneta.new(:File, dir: 'moneta')
+  def initialize store
+    @@store = store
   end
 
   def build request

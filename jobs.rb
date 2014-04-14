@@ -2,6 +2,10 @@ require 'stalker'
 require_relative 'model/Task'
 require 'rest_client'
 require 'moneta'
+require 'data_mapper'
+
+DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/#{ENV['RACK_ENV']}.sqlite")
+DataMapper.finalize
 
 job 'run.tasks' do |args|
   store = Moneta.new(:File, dir: 'moneta_results')
