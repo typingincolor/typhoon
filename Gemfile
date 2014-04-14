@@ -18,3 +18,8 @@ gem 'json-schema'
 group :development do
   gem 'forward'
 end
+
+group :test do
+  gem 'minitest'
+  gem 'rack-test'
+end

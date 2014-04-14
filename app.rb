@@ -70,14 +70,18 @@ post '/script/factory' do
     protocol = env['HTTP_X_FORWARDED_PROTO']
   end
 
-  {:run => "#{protocol}://#{hostname}:#{port}/script/#{id}/run", :script => "#{protocol}://#{hostname}:#{port}/script/#{id}"}.to_json
+  {:_id => "#{id}", :run => "#{protocol}://#{hostname}:#{port}/script/#{id}/run", :script => "#{protocol}://#{hostname}:#{port}/script/#{id}"}.to_json
 end
 
 get '/script/:id' do
   content_type :json
   script_factory = ScriptFactory.new
   script = script_factory.get params[:id]
-  script
+  if !script
+    404
+  else
+    script
+  end
 end
 
 post '/at' do
