@@ -4,7 +4,7 @@ require 'moneta'
 
 class ScriptFactory
   def initialize store
-    @@store = store
+    @store = store
   end
 
   def build request
@@ -16,12 +16,12 @@ class ScriptFactory
     end
 
     # store the script
-    counter = @@store.increment('counter').to_s
-    @@store[counter] = script
+    counter = @store.increment('counter').to_s
+    @store[counter] = script
     counter
   end
 
   def get key
-    @@store[key]
+    @store[key]
   end
 end
