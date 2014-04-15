@@ -101,6 +101,12 @@ You will need beanstalk (`brew install beanstalk`), and [foreman][5]
 > foreman start
 ```
 
+## To run the integration tests
+
+```
+> ruby IntegrationTest.rb
+```
+
  [1]: http://www.michaelnygard.com/
  [2]: http://nilhcem.github.io/FakeSMTP/
  [3]: https://speakerdeck.com/mtnygard/maneuverable-web-architecture
