@@ -105,6 +105,8 @@ bundle exec rake db:reset     # Reset database (drop and recreate)
 - **Background Jobs**: Sidekiq with Redis (reliable, feature-rich)
 - **HTTP Client**: HTTP gem (modern alternative to RestClient)
 - **Configuration**: dotenv + YAML for environment-based config
+- **Error Handling**: Unified Typhoon error hierarchy with proper HTTP status codes
+- **Repository Pattern**: Abstraction layer for Moneta storage operations
 
 ### Command Pattern Implementation
 
@@ -123,20 +125,27 @@ Available commands:
 
 Scripts are JSON objects with string keys, each containing a command type and data. Commands execute in sequence, mutating the Token as they run.
 
-### Storage
+### Storage & Repository Pattern
 
 - **SQLite** (via Sequel) - Stores Tasks with scheduled execution times, includes timestamps and validation
 - **Moneta** - Key-value store for scripts and results
   - `moneta/` directory - Stores generated scripts
   - `moneta_results/` directory - Stores task execution results with full response data
+- **Repository Pattern** - Abstracts storage operations:
+  - **MonetaRepository** (repositories/moneta_repository.rb) - Base wrapper for Moneta with consistent find/save/delete API
+  - **ScriptRepository** (repositories/script_repository.rb) - Manages script storage with auto-increment IDs
+  - **ResultRepository** (repositories/result_repository.rb) - Stores task results as JSON with auto-increment IDs
 
 ### Configuration
 
 - **config/settings.yml** - Environment-based YAML configuration
-- **config/config.rb** - Configuration loader with ERB support
+- **config/config.rb** - Configuration loader with ERB support and explicit accessor methods (no method_missing)
 - **config/database.rb** - Database setup with Sequel
 - **config/logger.rb** - Structured JSON logging
 - **.env file** - Local environment variables (see .env.example)
+- **lib/constants.rb** - Named constants for magic numbers (HTTP timeouts, logging limits)
+- **lib/errors.rb** - Unified error hierarchy with Typhoon::Error base class
+- **lib/error_handler.rb** - Generic Sinatra error handler module
 
 Environment variables:
 - `RACK_ENV` - Application environment (development/test/production)
@@ -147,18 +156,23 @@ Environment variables:
 ## Key Files
 
 ### Application Core
-- `app.rb` - Main Sinatra application class with comprehensive error handling and REST endpoints
+- `app.rb` - Main Sinatra application class with Typhoon::ErrorHandler module and REST endpoints
 - `config.ru` - Rack configuration file for running with Puma
 
 ### Services
-- `services/ScriptEngine.rb` - Executes scripts with validation and error handling
-- `services/ScriptFactory.rb` - Builds scripts from templates with security checks
+- `services/ScriptEngine.rb` - Executes scripts with Typhoon::ScriptExecutionError
+- `services/ScriptFactory.rb` - Builds scripts from templates using ScriptRepository
+
+### Repositories
+- `repositories/moneta_repository.rb` - Base Moneta wrapper with find/find!/save/delete/increment_counter
+- `repositories/script_repository.rb` - Script storage with auto-increment IDs
+- `repositories/result_repository.rb` - Task result storage with JSON serialization
 
 ### Commands (Command Pattern)
-- `commands/CommandTemplate.rb` - Base class with validation methods
+- `commands/CommandTemplate.rb` - Base class with Typhoon::ValidationError for validation failures
 - `commands/CommandFactory.rb` - Factory with COMMAND_MAP for instantiation
-- `commands/ErbCommand.rb` - ERB template rendering (path traversal protected)
-- `commands/EmailCommand.rb` - Email sending with validation
+- `commands/ErbCommand.rb` - ERB template rendering (whitelist-protected, uses Typhoon::ValidationError)
+- `commands/EmailCommand.rb` - Email sending with Typhoon::ValidationError and Typhoon::ServerError
 - `commands/ConcatenateCommand.rb` - String concatenation
 - `commands/NullCommand.rb` - No-op command
 - `commands/Token.rb` - Data carrier object
@@ -167,18 +181,21 @@ Environment variables:
 - `model/Task.rb` - Sequel model for scheduled tasks with validation and helper methods
 
 ### Workers
-- `workers/task_executor_worker.rb` - Sidekiq worker that executes scheduled tasks
+- `workers/task_executor_worker.rb` - Sidekiq worker that executes scheduled tasks using ResultRepository
 
-### Configuration
-- `config/config.rb` - Configuration loader
+### Configuration & Core Libraries
+- `config/config.rb` - Configuration loader with explicit accessors (no method_missing)
 - `config/database.rb` - Database setup and table creation
-- `config/logger.rb` - Structured JSON logging
+- `config/logger.rb` - Structured JSON logging with TyphoonConstants
 - `config/settings.yml` - Environment-based settings
 - `config/puma.rb` - Puma web server configuration
 - `config/sidekiq.yml` - Sidekiq worker and schedule configuration
+- `lib/constants.rb` - TyphoonConstants module (HTTP::TIMEOUT_SECONDS, Logging::BACKTRACE_LIMIT)
+- `lib/errors.rb` - Typhoon error hierarchy (Error, ClientError, ServerError, etc.)
+- `lib/error_handler.rb` - Generic Sinatra error handler module
 
 ### Testing
-- `spec/` - RSpec test suite (180 examples, 94.35% coverage)
+- `spec/` - RSpec test suite (182 examples, 93.07% coverage)
   - `spec/spec_helper.rb` - RSpec configuration with SimpleCov
   - `spec/commands/` - Command pattern tests (Token, CommandFactory, Email, ERB, etc.)
   - `spec/services/` - ScriptEngine and ScriptFactory tests
@@ -192,11 +209,10 @@ Environment variables:
 - `coverage/` - SimpleCov HTML coverage reports (gitignored)
 
 **Test Coverage Summary:**
-- 180 examples, 0 failures
-- 94.35% line coverage (384/407 lines)
-- 13 files with 100% coverage (all commands, services, models, config)
-- app.rb: 83.48% (production config and proxy scenarios not tested)
-- workers/task_executor_worker.rb: 90.00%
+- 182 examples, 0 failures
+- 93.07% line coverage (497/534 lines)
+- All repositories, commands, services, models, and config have excellent coverage
+- app.rb, workers, and error handling fully tested with new Typhoon error hierarchy
 
 ## Security Improvements
 
@@ -207,29 +223,47 @@ Environment variables:
 
 ### Input Validation
 - JSON schema validation on all POST endpoints
-- Email address format validation
+- Email address format validation with Typhoon::ValidationError
 - URL format validation in Task model
-- Required field validation in commands
+- Required field validation in commands using Typhoon::ValidationError
 
-### Error Handling
-- Custom error classes (ScriptExecutionError, UnknownActionError, etc.)
-- Proper HTTP status codes (400 for client errors, 500 for server errors)
-- Sensitive error details hidden from API responses
-- Comprehensive logging for debugging
+### Unified Error Handling
+- **Typhoon error hierarchy** (lib/errors.rb):
+  - `Typhoon::Error` - Base class with status_code, error_type, and to_h methods
+  - `Typhoon::ClientError` - 4xx client errors (400 Bad Request)
+  - `Typhoon::ServerError` - 5xx server errors (500 Internal Server Error)
+  - `Typhoon::ValidationError` - 422 Unprocessable Entity for validation failures
+  - `Typhoon::ResourceNotFoundError` - 404 Not Found
+  - `Typhoon::UnknownActionError` - 400 Bad Request for unknown script actions
+  - `Typhoon::ScriptExecutionError` - 422 for script execution failures
+  - `Typhoon::ScriptGenerationError` - 500 for script generation failures
+- **Generic error handler** (lib/error_handler.rb) - Single Sinatra module replaces repetitive error handlers
+- **Proper HTTP status codes** - Each error class knows its own status code
+- **Sensitive error details hidden** - API responses use structured error format
+- **Comprehensive logging** - Server errors logged before response, client errors not logged
 
 ## Error Handling Patterns
 
 When adding new endpoints or commands:
 
-1. Use specific error classes for different failure modes
-2. Add error handlers in app.rb for new error types
-3. Return appropriate HTTP status codes:
-   - 400: Bad Request (invalid input)
-   - 404: Not Found
-   - 422: Unprocessable Entity (validation failed)
-   - 500: Internal Server Error
-4. Log errors with LOGGER before raising or in error handlers
-5. Never expose internal details (stack traces, paths) in API responses
+1. **Use Typhoon error classes** for all errors:
+   - `Typhoon::ValidationError` (422) - For validation failures in commands/endpoints
+   - `Typhoon::ResourceNotFoundError` (404) - For missing resources
+   - `Typhoon::UnknownActionError` (400) - For unknown script actions
+   - `Typhoon::ScriptExecutionError` (422) - For script execution failures
+   - `Typhoon::ScriptGenerationError` (500) - For script generation failures
+   - `Typhoon::ClientError` (400) - For other client errors
+   - `Typhoon::ServerError` (500) - For other server errors
+
+2. **No need to add error handlers** - The Typhoon::ErrorHandler module handles all Typhoon errors automatically
+
+3. **Each error knows its HTTP status code** - Call `error.status_code` or rely on automatic handling
+
+4. **Structured error responses** - All Typhoon errors automatically convert to JSON via `to_h` method
+
+5. **Logging** - Server errors (5xx) logged automatically, client errors (4xx) not logged to reduce noise
+
+6. **Never expose internals** - Error messages are user-safe, stack traces never exposed
 
 ## Adding New Commands
 

@@ -29,7 +29,7 @@ RSpec.describe EmailCommand do
         'data' => { 'subject' => 'Test' }
       }
 
-      expect { EmailCommand.new(command) }.to raise_error(ArgumentError, /to/)
+      expect { EmailCommand.new(command) }.to raise_error(Typhoon::ValidationError, /to/)
     end
 
     it 'requires subject field' do
@@ -38,7 +38,7 @@ RSpec.describe EmailCommand do
         'data' => { 'to' => 'test@example.com' }
       }
 
-      expect { EmailCommand.new(command) }.to raise_error(ArgumentError, /subject/)
+      expect { EmailCommand.new(command) }.to raise_error(Typhoon::ValidationError, /subject/)
     end
   end
 
@@ -80,7 +80,7 @@ RSpec.describe EmailCommand do
           'data' => { 'to' => email, 'subject' => 'Test' }
         }
 
-        expect { EmailCommand.new(command) }.to raise_error(ArgumentError, /Invalid email address/),
+        expect { EmailCommand.new(command) }.to raise_error(Typhoon::ValidationError, /Invalid email address/),
           "Expected #{email.inspect} to be invalid"
       end
     end
@@ -91,7 +91,7 @@ RSpec.describe EmailCommand do
         'data' => { 'to' => 'invalid@@@email', 'subject' => 'Test' }
       }
 
-      expect { EmailCommand.new(command) }.to raise_error(ArgumentError, /invalid@@@email/)
+      expect { EmailCommand.new(command) }.to raise_error(Typhoon::ValidationError, /invalid@@@email/)
     end
   end
 

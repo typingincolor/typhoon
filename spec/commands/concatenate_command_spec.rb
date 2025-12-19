@@ -48,11 +48,11 @@ RSpec.describe ConcatenateCommand do
     it 'raises error if string data is missing' do
       command = { 'command' => 'concatenate', 'data' => {} }
 
-      expect { ConcatenateCommand.new(command) }.to raise_error(ArgumentError, /string/)
+      expect { ConcatenateCommand.new(command) }.to raise_error(Typhoon::ValidationError, /string/)
     end
 
     it 'raises error if command structure is invalid' do
-      expect { ConcatenateCommand.new({}) }.to raise_error(ArgumentError)
+      expect { ConcatenateCommand.new({}) }.to raise_error(Typhoon::ValidationError)
     end
   end
 end

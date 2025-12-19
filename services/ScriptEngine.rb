@@ -1,9 +1,9 @@
 require_relative '../commands/Token'
 require_relative '../commands/CommandFactory'
+require_relative '../lib/errors'
 require 'json'
 
 class ScriptEngine
-  class ScriptExecutionError < StandardError; end
 
   def run(script)
     token = Token.new
@@ -22,7 +22,7 @@ class ScriptEngine
         command.execute(token)
       rescue => e
         LOGGER.error("Command '#{key}' failed: #{e.message}")
-        raise ScriptExecutionError, "Failed at step '#{key}': #{e.message}"
+        raise Typhoon::ScriptExecutionError, "Failed at step '#{key}': #{e.message}"
       end
     end
 
@@ -35,27 +35,27 @@ class ScriptEngine
   def parse_script(script)
     return script if script.is_a?(Hash)
 
-    raise ScriptExecutionError, 'Script must be a hash' unless script.is_a?(String)
+    raise Typhoon::ScriptExecutionError, 'Script must be a hash' unless script.is_a?(String)
 
     parsed = JSON.parse(script)
-    raise ScriptExecutionError, 'Script must be a hash' unless parsed.is_a?(Hash)
+    raise Typhoon::ScriptExecutionError, 'Script must be a hash' unless parsed.is_a?(Hash)
 
     parsed
   rescue JSON::ParserError => e
-    raise ScriptExecutionError, "Invalid JSON: #{e.message}"
+    raise Typhoon::ScriptExecutionError, "Invalid JSON: #{e.message}"
   end
 
   def validate_script!(script)
-    raise ScriptExecutionError, 'Script must be a hash' unless script.is_a?(Hash)
-    raise ScriptExecutionError, 'Script cannot be empty' if script.empty?
+    raise Typhoon::ScriptExecutionError, 'Script must be a hash' unless script.is_a?(Hash)
+    raise Typhoon::ScriptExecutionError, 'Script cannot be empty' if script.empty?
 
     script.each do |key, command_data|
       unless command_data.is_a?(Hash)
-        raise ScriptExecutionError, "Command '#{key}' must be a hash"
+        raise Typhoon::ScriptExecutionError, "Command '#{key}' must be a hash"
       end
 
       unless command_data['command']
-        raise ScriptExecutionError, "Command '#{key}' missing 'command' field"
+        raise Typhoon::ScriptExecutionError, "Command '#{key}' missing 'command' field"
       end
     end
   end

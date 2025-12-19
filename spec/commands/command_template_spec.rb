@@ -18,23 +18,23 @@ RSpec.describe CommandTemplate do
     end
 
     it 'validates command is a hash' do
-      expect { TestCommand.new('not a hash') }.to raise_error(ArgumentError, /Command data is required/)
+      expect { TestCommand.new('not a hash') }.to raise_error(Typhoon::ValidationError, /Command data is required/)
     end
 
     it 'validates command has command key' do
       command = { 'data' => {} }
 
-      expect { TestCommand.new(command) }.to raise_error(ArgumentError, /must have a "command" key/)
+      expect { TestCommand.new(command) }.to raise_error(Typhoon::ValidationError, /must have a "command" key/)
     end
 
     it 'validates command has data key' do
       command = { 'command' => 'test' }
 
-      expect { TestCommand.new(command) }.to raise_error(ArgumentError, /must have a "data" key/)
+      expect { TestCommand.new(command) }.to raise_error(Typhoon::ValidationError, /must have a "data" key/)
     end
 
     it 'raises for nil command' do
-      expect { TestCommand.new(nil) }.to raise_error(ArgumentError)
+      expect { TestCommand.new(nil) }.to raise_error(Typhoon::ValidationError)
     end
   end
 
@@ -83,7 +83,7 @@ RSpec.describe CommandTemplate do
         'data' => { 'field1' => 'value1' }
       }
 
-      expect { ValidatingCommand.new(command) }.to raise_error(ArgumentError, /field2/)
+      expect { ValidatingCommand.new(command) }.to raise_error(Typhoon::ValidationError, /field2/)
     end
 
     it 'lists all missing keys in error message' do
@@ -92,7 +92,7 @@ RSpec.describe CommandTemplate do
         'data' => {}
       }
 
-      expect { ValidatingCommand.new(command) }.to raise_error(ArgumentError, /field1, field2/)
+      expect { ValidatingCommand.new(command) }.to raise_error(Typhoon::ValidationError, /field1, field2/)
     end
 
     it 'allows extra keys beyond required ones' do

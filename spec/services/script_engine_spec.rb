@@ -51,27 +51,27 @@ RSpec.describe ScriptEngine do
     end
 
     it 'raises ScriptExecutionError for invalid JSON' do
-      expect { engine.run('not valid json') }.to raise_error(ScriptEngine::ScriptExecutionError, /Invalid JSON/)
+      expect { engine.run('not valid json') }.to raise_error(Typhoon::ScriptExecutionError, /Invalid JSON/)
     end
 
     it 'raises ScriptExecutionError for empty script' do
-      expect { engine.run({}) }.to raise_error(ScriptEngine::ScriptExecutionError, /cannot be empty/)
+      expect { engine.run({}) }.to raise_error(Typhoon::ScriptExecutionError, /cannot be empty/)
     end
 
     it 'raises ScriptExecutionError for non-hash script' do
-      expect { engine.run([]) }.to raise_error(ScriptEngine::ScriptExecutionError, /must be a hash/)
+      expect { engine.run([]) }.to raise_error(Typhoon::ScriptExecutionError, /must be a hash/)
     end
 
     it 'raises ScriptExecutionError for command without command field' do
       script = { 'step1' => { 'data' => {} } }
 
-      expect { engine.run(script) }.to raise_error(ScriptEngine::ScriptExecutionError, /missing 'command' field/)
+      expect { engine.run(script) }.to raise_error(Typhoon::ScriptExecutionError, /missing 'command' field/)
     end
 
     it 'raises ScriptExecutionError for non-hash command' do
       script = { 'step1' => 'not a hash' }
 
-      expect { engine.run(script) }.to raise_error(ScriptEngine::ScriptExecutionError, /must be a hash/)
+      expect { engine.run(script) }.to raise_error(Typhoon::ScriptExecutionError, /must be a hash/)
     end
 
     it 'raises ScriptExecutionError when command execution fails' do
@@ -82,7 +82,7 @@ RSpec.describe ScriptEngine do
         }
       }
 
-      expect { engine.run(script) }.to raise_error(ScriptEngine::ScriptExecutionError, /Failed at step/)
+      expect { engine.run(script) }.to raise_error(Typhoon::ScriptExecutionError, /Failed at step/)
     end
 
     it 'includes failing step name in error message' do
@@ -97,7 +97,7 @@ RSpec.describe ScriptEngine do
         }
       }
 
-      expect { engine.run(script) }.to raise_error(ScriptEngine::ScriptExecutionError, /bad_step/)
+      expect { engine.run(script) }.to raise_error(Typhoon::ScriptExecutionError, /bad_step/)
     end
   end
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../config/logger'
+require_relative '../lib/errors'
 
 # Repository pattern wrapper for Moneta store
 # Provides consistent API and centralizes storage operations
@@ -29,10 +30,10 @@ class MonetaRepository
   # Find a value by key, raise error if not found
   # @param key [String] Storage key
   # @return [Object] The stored value
-  # @raise [ArgumentError] if key not found
+  # @raise [Typhoon::ResourceNotFoundError] if key not found
   def find!(key)
     value = find(key)
-    raise ArgumentError, "Resource with key '#{key}' not found" unless value
+    raise Typhoon::ResourceNotFoundError, "Resource with key '#{key}' not found" unless value
 
     value
   end

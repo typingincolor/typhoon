@@ -83,20 +83,20 @@ RSpec.describe ScriptFactory do
         }
       end
 
-      it 'raises ScriptGenerationError' do
-        expect { factory.build(request) }.to raise_error(ScriptFactory::ScriptGenerationError)
+      it 'raises UnknownActionError' do
+        expect { factory.build(request) }.to raise_error(Typhoon::UnknownActionError)
       end
 
       it 'includes action name in error message' do
         expect { factory.build(request) }.to raise_error(
-          ScriptFactory::ScriptGenerationError,
+          Typhoon::UnknownActionError,
           /unknown_action/
         )
       end
 
       it 'lists supported actions in error message' do
         expect { factory.build(request) }.to raise_error(
-          ScriptFactory::ScriptGenerationError,
+          Typhoon::UnknownActionError,
           /Supported actions: send_email/
         )
       end
@@ -114,14 +114,14 @@ RSpec.describe ScriptFactory do
         # Remove template if it exists
         File.delete('views/email_script.erb') if File.exist?('views/email_script.erb')
 
-        expect { factory.build(request) }.to raise_error(ScriptFactory::ScriptGenerationError)
+        expect { factory.build(request) }.to raise_error(Typhoon::ScriptGenerationError)
       end
 
       it 'includes original error in ScriptGenerationError' do
         File.delete('views/email_script.erb') if File.exist?('views/email_script.erb')
 
         expect { factory.build(request) }.to raise_error(
-          ScriptFactory::ScriptGenerationError,
+          Typhoon::ScriptGenerationError,
           /Failed to generate script/
         )
       end
@@ -133,7 +133,7 @@ RSpec.describe ScriptFactory do
 
         begin
           factory.build(request)
-        rescue ScriptFactory::ScriptGenerationError
+        rescue Typhoon::ScriptGenerationError
           # Expected
         end
       end
@@ -150,9 +150,9 @@ RSpec.describe ScriptFactory do
       expect(result).to eq(script_content)
     end
 
-    it 'raises ArgumentError for non-existent script' do
+    it 'raises ResourceNotFoundError for non-existent script' do
       expect { factory.get('nonexistent') }.to raise_error(
-        ArgumentError,
+        Typhoon::ResourceNotFoundError,
         /Resource with key 'nonexistent' not found/
       )
     end

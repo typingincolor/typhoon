@@ -63,7 +63,7 @@ RSpec.describe NullCommand do
     end
 
     it 'requires valid command structure' do
-      expect { NullCommand.new({}) }.to raise_error(ArgumentError)
+      expect { NullCommand.new({}) }.to raise_error(Typhoon::ValidationError)
     end
   end
 

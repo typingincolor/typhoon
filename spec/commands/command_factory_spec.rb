@@ -34,7 +34,7 @@ RSpec.describe CommandFactory do
     end
 
     it 'raises error for invalid command structure' do
-      expect { factory.build({}) }.to raise_error(ArgumentError)
+      expect { factory.build({}) }.to raise_error(Typhoon::ValidationError)
     end
   end
 

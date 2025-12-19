@@ -1,11 +1,9 @@
 require 'erb'
 require 'tilt'
 require_relative '../repositories/script_repository'
+require_relative '../lib/errors'
 
 class ScriptFactory
-  class UnknownActionError < StandardError; end
-  class ScriptGenerationError < StandardError; end
-
   SUPPORTED_ACTIONS = %w[send_email].freeze
 
   def initialize(script_repository)
@@ -16,16 +14,18 @@ class ScriptFactory
     action = request['action']
 
     unless SUPPORTED_ACTIONS.include?(action)
-      raise UnknownActionError, "Unknown action '#{action}'. Supported actions: #{SUPPORTED_ACTIONS.join(', ')}"
+      raise Typhoon::UnknownActionError, "Unknown action '#{action}'. Supported actions: #{SUPPORTED_ACTIONS.join(', ')}"
     end
 
     script = generate_script(action, request['data'])
     script_id = @repository.save(script)
     LOGGER.info("Script stored with id: #{script_id}")
     script_id
+  rescue Typhoon::UnknownActionError
+    raise # Re-raise Typhoon errors as-is
   rescue => e
     LOGGER.error("Script generation failed: #{e.message}")
-    raise ScriptGenerationError, "Failed to generate script: #{e.message}"
+    raise Typhoon::ScriptGenerationError, "Failed to generate script: #{e.message}"
   end
 
   def get(script_id)
@@ -42,7 +42,7 @@ class ScriptFactory
     case action
     when 'send_email'
       template_path = 'views/email_script.erb'
-      raise ScriptGenerationError, "Template not found: #{template_path}" unless File.exist?(template_path)
+      raise Typhoon::ScriptGenerationError, "Template not found: #{template_path}" unless File.exist?(template_path)
 
       template = Tilt::ERBTemplate.new(template_path)
       template.render(self, data)

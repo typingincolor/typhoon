@@ -12,7 +12,7 @@ RSpec.describe ErbCommand do
         }
       }
 
-      expect { ErbCommand.new(command) }.to raise_error(ArgumentError, /not allowed/)
+      expect { ErbCommand.new(command) }.to raise_error(Typhoon::ValidationError, /not allowed/)
     end
 
     it 'prevents relative path attacks' do
@@ -24,7 +24,7 @@ RSpec.describe ErbCommand do
         }
       }
 
-      expect { ErbCommand.new(command) }.to raise_error(ArgumentError, /not allowed/)
+      expect { ErbCommand.new(command) }.to raise_error(Typhoon::ValidationError, /not allowed/)
     end
 
     it 'only allows whitelisted templates' do
@@ -53,7 +53,7 @@ RSpec.describe ErbCommand do
       }
 
       expect { ErbCommand.new(command) }.to raise_error(
-        ArgumentError,
+        Typhoon::ValidationError,
         /Allowed templates: #{ErbCommand::ALLOWED_TEMPLATES.join(', ')}/
       )
     end
@@ -66,7 +66,7 @@ RSpec.describe ErbCommand do
         'data' => { 'template_data' => {} }
       }
 
-      expect { ErbCommand.new(command) }.to raise_error(ArgumentError, /template/)
+      expect { ErbCommand.new(command) }.to raise_error(Typhoon::ValidationError, /template/)
     end
 
     it 'requires template_data field' do
@@ -75,7 +75,7 @@ RSpec.describe ErbCommand do
         'data' => { 'template' => 'email' }
       }
 
-      expect { ErbCommand.new(command) }.to raise_error(ArgumentError, /template_data/)
+      expect { ErbCommand.new(command) }.to raise_error(Typhoon::ValidationError, /template_data/)
     end
   end
 
@@ -139,7 +139,7 @@ RSpec.describe ErbCommand do
       cmd = ErbCommand.new(command)
       token = Token.new
 
-      expect { cmd.execute(token) }.to raise_error(ArgumentError, /Invalid template path/)
+      expect { cmd.execute(token) }.to raise_error(Typhoon::ValidationError, /Invalid template path/)
     end
   end
 end

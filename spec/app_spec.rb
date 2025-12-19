@@ -168,12 +168,12 @@ RSpec.describe TyphoonApp do
   end
 
   describe 'GET /script/:id' do
-    it 'returns 400 when script not found' do
+    it 'returns 404 when script not found' do
       get '/script/nonexistent'
 
-      expect(last_response.status).to eq(400)
+      expect(last_response.status).to eq(404)
       json = JSON.parse(last_response.body)
-      expect(json['error']).to eq('Invalid argument')
+      expect(json['error']).to eq('Not found')
     end
   end
 

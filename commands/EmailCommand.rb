@@ -6,6 +6,10 @@ class EmailCommand < CommandTemplate
     super
     validate_required_data_keys!('to', 'subject')
     validate_email_address!(command['data']['to'])
+  rescue Typhoon::ValidationError
+    raise # Re-raise validation errors as-is
+  rescue => e
+    raise Typhoon::ValidationError, e.message
   end
 
   def execute(token)
@@ -28,7 +32,7 @@ class EmailCommand < CommandTemplate
     token
   rescue => e
     LOGGER.error("Failed to send email: #{e.message}")
-    raise StandardError, "Email delivery failed: #{e.message}"
+    raise Typhoon::ServerError, "Email delivery failed: #{e.message}"
   end
 
   private
@@ -43,6 +47,6 @@ class EmailCommand < CommandTemplate
   def validate_email_address!(email)
     # Validates email format and prevents consecutive dots
     email_regex = /\A[\w+\-]+(?:\.[\w+\-]+)*@[a-z\d\-]+(?:\.[a-z\d\-]+)*\.[a-z]+\z/i
-    raise ArgumentError, "Invalid email address: #{email}" unless email =~ email_regex
+    raise Typhoon::ValidationError, "Invalid email address: #{email}" unless email =~ email_regex
   end
 end
