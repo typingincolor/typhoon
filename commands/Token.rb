@@ -1,21 +1,30 @@
 class Token
-  def initialize
-    @token = {:headers => [], :body => ''}
+  attr_reader :headers, :body
+
+  def initialize(body: '', headers: [])
+    @headers = headers
+    @body = body
   end
 
-  def add_header header
-    @token[:headers].push header
+  def add_header(header:, value:)
+    @headers << { header: header, value: value }
+    self
   end
 
-  def set_body body
-    @token[:body] = body
+  def set_body(body)
+    @body = body
+    self
   end
 
   def get_body
-    @token[:body]
+    @body
   end
 
   def get
-    @token
+    { headers: @headers, body: @body }
+  end
+
+  def to_json(*_args)
+    get.to_json
   end
 end

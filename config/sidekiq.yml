@@ -1,0 +1,13 @@
+---
+:verbose: false
+:concurrency: 5
+:timeout: 30
+
+:queues:
+  - default
+
+:schedule:
+  check_tasks:
+    cron: '*/20 * * * * *'  # Every 20 seconds
+    class: TaskExecutorWorker
+    queue: default

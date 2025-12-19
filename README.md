@@ -1,18 +1,21 @@
-typhoon
-=======
+# Typhoon
 
-This is based on part of the [Maneuverable Web Architecture][3] at QCon London by [Michael Nygaard][1].
+A Ruby/Sinatra-based web service implementing part of the [Maneuverable Web Architecture][3] presented at QCon London by [Michael Nygard][1].
 
-There are three parts to it:
+## Overview
 
-## 'at' service
+Typhoon provides three core services that work together to schedule and execute scripts via HTTP:
 
-Calls the specified url at a given point in time. I have used the [chronic][4] gem to
-parse the date, so it can make sense of pretty much anything...
+### 1. 'at' Service
 
-`curl -X POST -d @test_at_call.json http://localhost:4567/at`
+Schedules URLs to be called at a specified time using natural language date parsing via the [chronic][4] gem.
 
-example:
+**Endpoint:** `POST /at`
+
+**Example:**
+```bash
+curl -X POST -d @examples/test_at_call.json http://localhost:4567/at
+```
 
 ```json
 {
@@ -21,17 +24,18 @@ example:
 }
 ```
 
-The URL and the time to call it are stored in a database, and I use [beanstalk][6] and
-[clockwise][7] to call the url when the time comes.
+The URL and execution time are stored in a database. [Beanstalk][6] and [Clockwork][7] handle calling the URL at the scheduled time.
 
-## script factory
+### 2. Script Factory
 
-Builds a script to do a specified task, stores it in a key/value store (using [moneta][8]), and returns a url for the
-script.
+Builds executable scripts from templates, stores them in a key-value store ([Moneta][8]), and returns URLs to execute them.
 
-`curl -X POST -d @test_factory_call.json http://localhost:4567/script/factory`
+**Endpoint:** `POST /script/factory`
 
-example request:
+**Example:**
+```bash
+curl -X POST -d @examples/test_factory_call.json http://localhost:4567/script/factory
+```
 
 ```json
 {
@@ -44,68 +48,145 @@ example request:
 }
 ```
 
-## script engine
-
-Runs the scripts built by the factory
-
-### to run script :id
-
-`curl http://localhost:4567/script/:id/run`  
-
-### to run an abritrary script
-
-`curl -X POST -d @test_script.json http://localhost:4567/script/run`
-
-example script:
-
+**Response:**
 ```json
 {
-    "one": {
-        "command": "erb",
-        "data": {
-            "template": "email",
-            "template_data": {
-                "name": "Andrew"
-            }
-        }
-    },
-    "two": {
-        "command": "email",
-        "data": {
-            "to": "abraithw@gmail.com",
-          	"subject": "test email"
-        }
-    }
+  "_id": "1",
+  "run": "http://localhost:4567/script/1/run",
+  "script": "http://localhost:4567/script/1"
 }
 ```
 
-## Creating the database
+### 3. Script Engine
 
-from the project's root directory:
+Executes scripts using a command pattern. Scripts are JSON objects with sequentially executed commands.
 
-```
-typingincolor:typhoon andrew$ irb
-irb(main):001:0> require './model/Task.rb'
-=> true
-irb(main):002:0> DataMapper.auto_migrate!
-=> DataMapper
-irb(main):003:0> quit
-```
+**Run stored script:** `GET /script/:id/run`
 
-## Running everything...
+**Run arbitrary script:** `POST /script/run`
 
-You will need beanstalk (`brew install beanstalk`), and [foreman][5]
-
-```
-> beanstalkd &
-> foreman start
+**Example:**
+```bash
+curl -X POST -d @examples/test_script.json http://localhost:4567/script/run
 ```
 
-## To run the integration tests
+```json
+{
+  "one": {
+    "command": "erb",
+    "data": {
+      "template": "email",
+      "template_data": {
+        "name": "Andrew"
+      }
+    }
+  },
+  "two": {
+    "command": "email",
+    "data": {
+      "to": "abraithw@gmail.com",
+      "subject": "test email"
+    }
+  }
+}
+```
 
+Available commands: `erb`, `email`, `concatenate`
+
+## Prerequisites
+
+- Ruby 3.2+ (see `.ruby-version`)
+- Redis: `brew install redis`
+- Bundler: `gem install bundler`
+
+## Setup
+
+1. **Install dependencies:**
+   ```bash
+   bundle install
+   ```
+
+2. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your settings
+   ```
+
+3. **Create database:**
+   ```bash
+   bundle exec rake db:create
+   ```
+
+## Running the Application
+
+1. **Start Redis (required for Sidekiq):**
+   ```bash
+   redis-server &
+   ```
+
+2. **Start all services using [Foreman][5]:**
+   ```bash
+   foreman start
+   ```
+
+This starts two processes:
+- **web**: Puma web server on port 4567
+- **worker**: Sidekiq background job processor (checks for tasks every 20 seconds)
+
+## Testing
+
+Run the integration test suite:
+```bash
+bundle exec ruby IntegrationTest.rb
 ```
-> ruby IntegrationTest.rb
+
+For development with auto-reloading:
+```bash
+bundle exec rerun 'ruby IntegrationTest.rb'
 ```
+
+Run RuboCop for linting:
+```bash
+bundle exec rubocop
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check endpoint |
+| GET | `/metrics` | Prometheus-compatible metrics |
+| POST | `/at` | Schedule a URL to be called at a specific time |
+| POST | `/script/factory` | Create a new script from a template |
+| GET | `/script/:id` | Retrieve a stored script |
+| GET | `/script/:id/run` | Execute a stored script |
+| POST | `/script/run` | Execute an arbitrary script |
+
+## Architecture (Modernized)
+
+- **Web Server**: Puma with multi-threading support
+- **Database**: SQLite with Sequel ORM for scheduled tasks
+- **Storage**: Moneta key-value store for scripts and execution results
+- **Background Jobs**: Sidekiq with Redis for reliable job processing
+- **Scheduling**: Sidekiq-Scheduler for periodic task checks (every 20 seconds)
+- **Script Execution**: Command pattern with Token-based data pipeline
+- **Configuration**: YAML-based with environment variable support
+- **Logging**: Structured JSON logging
+- **Error Handling**: Comprehensive error handling with proper HTTP status codes
+
+### Key Improvements from Original
+
+- Migrated from deprecated DataMapper to modern Sequel ORM
+- Replaced Beanstalk/Stalker/Clockwork with Sidekiq (single dependency)
+- Fixed security vulnerabilities (path traversal, input validation)
+- Added health check and metrics endpoints
+- Modernized Ruby patterns (keyword arguments, proper error handling)
+- Added comprehensive logging and error handling
+- Configuration management with dotenv
+
+For more detailed architecture information, see [CLAUDE.md](CLAUDE.md).
+
+## References
 
  [1]: http://www.michaelnygard.com/
  [2]: http://nilhcem.github.io/FakeSMTP/

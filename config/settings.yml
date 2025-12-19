@@ -1,0 +1,47 @@
+default: &default
+  app:
+    port: 4567
+    host: '0.0.0.0'
+
+  database:
+    adapter: 'sqlite'
+    database: '<%= ENV["RACK_ENV"] || "development" %>.sqlite'
+
+  redis:
+    url: '<%= ENV["REDIS_URL"] || "redis://localhost:6379/0" %>'
+
+  email:
+    from: '<%= ENV["EMAIL_FROM"] || "noreply@example.com" %>'
+    delivery_method: 'test'
+
+  moneta:
+    adapter: 'File'
+    dir: 'moneta'
+    results_dir: 'moneta_results'
+
+  scheduler:
+    check_interval: 20 # seconds
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+  database:
+    database: 'test.sqlite'
+  moneta:
+    adapter: 'Memory'
+
+production:
+  <<: *default
+  database:
+    database: '<%= ENV["DATABASE_URL"] || "production.sqlite" %>'
+  email:
+    delivery_method: 'smtp'
+    smtp_settings:
+      address: '<%= ENV["SMTP_HOST"] || "smtp.example.com" %>'
+      port: '<%= ENV["SMTP_PORT"] || 587 %>'
+      user_name: '<%= ENV["SMTP_USER"] || "" %>'
+      password: '<%= ENV["SMTP_PASSWORD"] || "" %>'
+      authentication: 'plain'
+      enable_starttls_auto: true

@@ -1,0 +1,52 @@
+require:
+  - rubocop-performance
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - '*.sqlite'
+    - 'moneta/**/*'
+
+# Style preferences
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+# Layout preferences
+Layout/LineLength:
+  Max: 120
+
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
+
+# Metrics
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'IntegrationTest.rb'
+    - 'Rakefile'
+    - 'config.ru'
+
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'app.rb'
+
+Metrics/AbcSize:
+  Max: 20
+
+# Naming
+Naming/MethodParameterName:
+  AllowedNames:
+    - id
+    - db
+    - to
+    - at

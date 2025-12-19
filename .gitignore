@@ -1,7 +1,41 @@
-received-emails
-npm-debug.log
-.idea
-moneta
-moneta_results
+# Environment
+.env
+
+# Database
 *.sqlite
+*.sqlite3
+*.db
+
+# Moneta storage
+moneta/
+moneta_results/
+
+# Ruby/Bundler
 .gems
+vendor/bundle/
+.bundle/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+log/
+tmp/
+
+# Test coverage
+coverage/
+
+# Email testing
+received-emails/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+npm-debug.log
