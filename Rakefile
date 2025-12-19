@@ -29,6 +29,32 @@ namespace :db do
   end
 end
 
+namespace :test do
+  desc 'Run RSpec tests'
+  task :spec do
+    sh 'bundle exec rspec'
+  end
+
+  desc 'Run integration tests'
+  task :integration do
+    sh 'bundle exec ruby IntegrationTest.rb'
+  end
+
+  desc 'Run all tests'
+  task all: [:spec, :integration]
+
+  desc 'Run mutation tests'
+  task :mutant do
+    sh 'bundle exec mutant run --include lib --require typhoon --use rspec "Token*"'
+  end
+
+  desc 'Run tests with coverage'
+  task :coverage do
+    ENV['COVERAGE'] = 'true'
+    Rake::Task['test:spec'].invoke
+  end
+end
+
 namespace :sidekiq do
   desc 'Start Sidekiq'
   task :start do
@@ -36,4 +62,5 @@ namespace :sidekiq do
   end
 end
 
-task default: 'db:info'
+task default: 'test:all'
+task test: 'test:all'

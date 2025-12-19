@@ -15,6 +15,11 @@ moneta_results/
 vendor/bundle/
 .bundle/
 
+# Ruby version managers
+.rbenv-gemsets
+.rvmrc
+.ruby-gemset
+
 # IDEs
 .idea/
 .vscode/

@@ -45,6 +45,7 @@ group :test do
   gem 'factory_bot', '~> 6.4'
   gem 'simplecov', '~> 0.22', require: false
   gem 'webmock', '~> 3.19'
+  gem 'mutant-rspec', '~> 0.12.0'
 end
 
 group :development, :test do

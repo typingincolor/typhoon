@@ -35,7 +35,12 @@ class ScriptEngine
   def parse_script(script)
     return script if script.is_a?(Hash)
 
-    JSON.parse(script)
+    raise ScriptExecutionError, 'Script must be a hash' unless script.is_a?(String)
+
+    parsed = JSON.parse(script)
+    raise ScriptExecutionError, 'Script must be a hash' unless parsed.is_a?(Hash)
+
+    parsed
   rescue JSON::ParserError => e
     raise ScriptExecutionError, "Invalid JSON: #{e.message}"
   end

@@ -95,9 +95,28 @@ Available commands: `erb`, `email`, `concatenate`
 
 ## Prerequisites
 
-- Ruby 3.2+ (see `.ruby-version`)
-- Redis: `brew install redis`
-- Bundler: `gem install bundler`
+- **Ruby 3.3.10** (managed via rbenv or asdf - see `.ruby-version` and `.tool-versions`)
+- **Redis**: `brew install redis`
+- **Bundler**: Automatically installed with Ruby 3.3.10
+
+### Ruby Version Management
+
+This project uses Ruby 3.3.10. We recommend using [rbenv](https://github.com/rbenv/rbenv) or [asdf](https://asdf-vm.com/):
+
+**With rbenv:**
+```bash
+brew install rbenv ruby-build
+rbenv install 3.3.10
+rbenv global 3.3.10
+```
+
+**With asdf:**
+```bash
+brew install asdf
+asdf plugin add ruby
+asdf install ruby 3.3.10
+asdf global ruby 3.3.10
+```
 
 ## Setup
 
@@ -135,7 +154,26 @@ This starts two processes:
 
 ## Testing
 
-Run the integration test suite:
+### RSpec Test Suite
+
+Run the comprehensive test suite (180 examples, 94.35% coverage):
+```bash
+bundle exec rspec
+```
+
+Run with detailed output:
+```bash
+bundle exec rspec --format documentation
+```
+
+View coverage report:
+```bash
+open coverage/index.html
+```
+
+### Legacy Integration Tests
+
+Run the legacy integration test suite:
 ```bash
 bundle exec ruby IntegrationTest.rb
 ```
@@ -145,9 +183,16 @@ For development with auto-reloading:
 bundle exec rerun 'ruby IntegrationTest.rb'
 ```
 
+### Code Quality
+
 Run RuboCop for linting:
 ```bash
 bundle exec rubocop
+```
+
+Auto-fix linting issues:
+```bash
+bundle exec rubocop -A
 ```
 
 ## API Endpoints

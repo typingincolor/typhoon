@@ -9,11 +9,16 @@ class EmailCommand < CommandTemplate
   end
 
   def execute(token)
+    from_address = email_config[:from]
+    to_address = command['data']['to']
+    email_subject = command['data']['subject']
+    email_body = token.get_body
+
     mail = Mail.new do
-      from    email_config[:from]
-      to      command['data']['to']
-      subject command['data']['subject']
-      body    token.get_body
+      from    from_address
+      to      to_address
+      subject email_subject
+      body    email_body
     end
 
     mail.deliver!
@@ -36,7 +41,8 @@ class EmailCommand < CommandTemplate
   end
 
   def validate_email_address!(email)
-    email_regex = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+    # Validates email format and prevents consecutive dots
+    email_regex = /\A[\w+\-]+(?:\.[\w+\-]+)*@[a-z\d\-]+(?:\.[a-z\d\-]+)*\.[a-z]+\z/i
     raise ArgumentError, "Invalid email address: #{email}" unless email =~ email_regex
   end
 end

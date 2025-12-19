@@ -8,16 +8,17 @@ class ErbCommand < CommandTemplate
   def initialize(command)
     super
     validate_required_data_keys!('template', 'template_data')
+
+    # Prevent path traversal attacks - validate early
+    template_name = command['data']['template']
+    unless ALLOWED_TEMPLATES.include?(template_name)
+      raise ArgumentError, "Template '#{template_name}' is not allowed. Allowed templates: #{ALLOWED_TEMPLATES.join(', ')}"
+    end
   end
 
   def execute(token)
     template_name = command['data']['template']
     template_data = command['data']['template_data']
-
-    # Prevent path traversal attacks
-    unless ALLOWED_TEMPLATES.include?(template_name)
-      raise ArgumentError, "Template '#{template_name}' is not allowed. Allowed templates: #{ALLOWED_TEMPLATES.join(', ')}"
-    end
 
     template_path = File.join('views', "#{template_name}.erb")
 

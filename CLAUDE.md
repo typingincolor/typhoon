@@ -47,9 +47,24 @@ This starts two processes (defined in Procfile):
 
 ### Testing
 
-Run integration tests:
+Run RSpec test suite (180 examples, 94.35% coverage):
+```bash
+bundle exec rspec
+```
+
+Run with detailed output:
+```bash
+bundle exec rspec --format documentation
+```
+
+Run legacy integration tests:
 ```bash
 bundle exec ruby IntegrationTest.rb
+```
+
+Run mutation tests (requires mutant license):
+```bash
+bundle exec mutant run
 ```
 
 Run linter:
@@ -60,6 +75,11 @@ bundle exec rubocop
 Auto-fix linting issues:
 ```bash
 bundle exec rubocop -A
+```
+
+View test coverage report:
+```bash
+open coverage/index.html
 ```
 
 ### Common Rake Tasks
@@ -158,7 +178,25 @@ Environment variables:
 - `config/sidekiq.yml` - Sidekiq worker and schedule configuration
 
 ### Testing
-- `IntegrationTest.rb` - Comprehensive integration test suite
+- `spec/` - RSpec test suite (180 examples, 94.35% coverage)
+  - `spec/spec_helper.rb` - RSpec configuration with SimpleCov
+  - `spec/commands/` - Command pattern tests (Token, CommandFactory, Email, ERB, etc.)
+  - `spec/services/` - ScriptEngine and ScriptFactory tests
+  - `spec/model/` - Task model tests
+  - `spec/config/` - Configuration and logger tests
+  - `spec/app_spec.rb` - Sinatra application integration tests
+  - `spec/workers/` - TaskExecutorWorker tests
+- `IntegrationTest.rb` - Legacy integration test suite
+- `.rspec` - RSpec configuration file
+- `.mutant.yml` - Mutation testing configuration
+- `coverage/` - SimpleCov HTML coverage reports (gitignored)
+
+**Test Coverage Summary:**
+- 180 examples, 0 failures
+- 94.35% line coverage (384/407 lines)
+- 13 files with 100% coverage (all commands, services, models, config)
+- app.rb: 83.48% (production config and proxy scenarios not tested)
+- workers/task_executor_worker.rb: 90.00%
 
 ## Security Improvements
 

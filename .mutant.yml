@@ -1,0 +1,12 @@
+---
+# Mutant configuration
+integration: rspec
+matcher:
+  subjects:
+    - Token
+    - CommandFactory
+    - ConcatenateCommand
+    - Task
+    - ScriptEngine
+    - ScriptFactory
+jobs: 4
