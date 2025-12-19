@@ -36,29 +36,40 @@ RSpec.describe Config do
     end
   end
 
-  describe 'method_missing' do
+  describe 'explicit accessor methods' do
     before { Config.load!('test') }
 
-    it 'returns config values for known keys' do
+    it 'provides app config via accessor method' do
       expect(Config.app).to be_a(Hash)
-      expect(Config.database).to be_a(Hash)
+      expect(Config.app).to have_key(:port)
     end
 
-    it 'raises NoMethodError for unknown keys' do
-      expect { Config.nonexistent_key }.to raise_error(NoMethodError)
+    it 'provides database config via accessor method' do
+      expect(Config.database).to be_a(Hash)
+      expect(Config.database).to have_key(:database)
+    end
+
+    it 'provides email config via accessor method' do
+      expect(Config.email).to be_a(Hash)
+      expect(Config.email).to have_key(:from)
+    end
+
+    it 'provides moneta config via accessor method' do
+      expect(Config.moneta).to be_a(Hash)
+      expect(Config.moneta).to have_key(:adapter)
+    end
+
+    it 'provides env via accessor method' do
+      expect(Config.env).to eq('test')
     end
   end
 
-  describe 'respond_to_missing?' do
+  describe 'hash-like access' do
     before { Config.load!('test') }
 
-    it 'returns true for valid config keys' do
-      expect(Config.respond_to?(:app)).to be true
-      expect(Config.respond_to?(:database)).to be true
-    end
-
-    it 'returns false for invalid keys' do
-      expect(Config.respond_to?(:invalid_key)).to be false
+    it 'supports [] notation for dynamic access' do
+      expect(Config[:app]).to be_a(Hash)
+      expect(Config[:database]).to be_a(Hash)
     end
   end
 

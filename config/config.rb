@@ -15,16 +15,32 @@ module Config
       @settings
     end
 
-    def method_missing(method_name, *args, &block)
-      if settings && settings.key?(method_name)
-        settings[method_name]
-      else
-        super
-      end
+    # Explicit accessor methods for configuration sections
+    # Replaces method_missing anti-pattern for better IDE support and type safety
+
+    def app
+      settings[:app]
     end
 
-    def respond_to_missing?(method_name, include_private = false)
-      (settings && settings.key?(method_name)) || super
+    def email
+      settings[:email]
+    end
+
+    def database
+      settings[:database]
+    end
+
+    def moneta
+      settings[:moneta]
+    end
+
+    def env
+      settings[:env]
+    end
+
+    # Hash-like access for dynamic cases
+    def [](key)
+      settings[key]
     end
 
     private

@@ -1,5 +1,6 @@
 require 'logger'
 require 'oj'
+require_relative '../lib/constants'
 
 module TyphoonLogger
   class JSONFormatter < Logger::Formatter
@@ -16,7 +17,7 @@ module TyphoonLogger
         log_entry['exception'] = {
           'class' => msg.class.name,
           'message' => msg.message,
-          'backtrace' => msg.backtrace&.first(5)
+          'backtrace' => msg.backtrace&.first(TyphoonConstants::Logging::BACKTRACE_LIMIT)
         }
       end
 

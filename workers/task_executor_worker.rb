@@ -3,6 +3,7 @@ require 'http'
 require_relative '../config/config'
 require_relative '../config/logger'
 require_relative '../config/database'
+require_relative '../lib/constants'
 
 class TaskExecutorWorker
   include Sidekiq::Worker
@@ -30,7 +31,7 @@ class TaskExecutorWorker
   def execute_task(task, results_store)
     LOGGER.info("Executing task #{task.id}: #{task.url}")
 
-    response = HTTP.timeout(30).get(task.url)
+    response = HTTP.timeout(TyphoonConstants::HTTP::TIMEOUT_SECONDS).get(task.url)
     response_code = response.code
 
     # Store result
@@ -52,7 +53,7 @@ class TaskExecutorWorker
     raise # Let Sidekiq handle retry
   rescue => e
     LOGGER.error("Unexpected error executing task #{task.id}: #{e.message}")
-    LOGGER.error(e.backtrace.first(5).join("\n"))
+    LOGGER.error(e.backtrace.first(TyphoonConstants::Logging::BACKTRACE_LIMIT).join("\n"))
     raise
   end
 end
