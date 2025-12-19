@@ -2,11 +2,13 @@ require_relative '../spec_helper'
 
 RSpec.describe ScriptFactory do
   let(:store) { Moneta.new(:Memory) }
-  let(:factory) { ScriptFactory.new(store) }
+  let(:moneta_repo) { MonetaRepository.new(store) }
+  let(:script_repo) { ScriptRepository.new(moneta_repo) }
+  let(:factory) { ScriptFactory.new(script_repo) }
 
   describe '#initialize' do
-    it 'accepts a store' do
-      expect { ScriptFactory.new(store) }.not_to raise_error
+    it 'accepts a repository' do
+      expect { ScriptFactory.new(script_repo) }.not_to raise_error
     end
   end
 
@@ -151,7 +153,7 @@ RSpec.describe ScriptFactory do
     it 'raises ArgumentError for non-existent script' do
       expect { factory.get('nonexistent') }.to raise_error(
         ArgumentError,
-        /Script with id 'nonexistent' not found/
+        /Resource with key 'nonexistent' not found/
       )
     end
 

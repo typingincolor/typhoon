@@ -1,6 +1,6 @@
 require 'erb'
 require 'tilt'
-require 'moneta'
+require_relative '../repositories/script_repository'
 
 class ScriptFactory
   class UnknownActionError < StandardError; end
@@ -8,8 +8,8 @@ class ScriptFactory
 
   SUPPORTED_ACTIONS = %w[send_email].freeze
 
-  def initialize(store)
-    @store = store
+  def initialize(script_repository)
+    @repository = script_repository
   end
 
   def build(request)
@@ -20,17 +20,16 @@ class ScriptFactory
     end
 
     script = generate_script(action, request['data'])
-    store_script(script)
+    script_id = @repository.save(script)
+    LOGGER.info("Script stored with id: #{script_id}")
+    script_id
   rescue => e
     LOGGER.error("Script generation failed: #{e.message}")
     raise ScriptGenerationError, "Failed to generate script: #{e.message}"
   end
 
-  def get(key)
-    script = @store[key]
-    raise ArgumentError, "Script with id '#{key}' not found" unless script
-
-    script
+  def get(script_id)
+    @repository.find!(script_id)
   end
 
   def self.supported_actions
@@ -48,12 +47,5 @@ class ScriptFactory
       template = Tilt::ERBTemplate.new(template_path)
       template.render(self, data)
     end
-  end
-
-  def store_script(script)
-    counter = @store.increment('counter').to_s
-    @store[counter] = script
-    LOGGER.info("Script stored with id: #{counter}")
-    counter
   end
 end

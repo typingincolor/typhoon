@@ -9,11 +9,19 @@ require 'dotenv/load'
 require_relative 'config/config'
 require_relative 'config/logger'
 require_relative 'config/database'
+require_relative 'lib/constants'
+require_relative 'lib/errors'
+require_relative 'lib/error_handler'
+require_relative 'repositories/moneta_repository'
+require_relative 'repositories/script_repository'
 require_relative 'commands/init'
 require_relative 'services/ScriptEngine'
 require_relative 'services/ScriptFactory'
 
 class TyphoonApp < Sinatra::Base
+  # Include unified error handling
+  include Typhoon::ErrorHandler
+
   # Configuration
   configure do
     set :show_exceptions, false
@@ -79,38 +87,13 @@ class TyphoonApp < Sinatra::Base
         script: "#{base_url}/script/#{id}"
       }
     end
-  end
 
-  # Error Handlers
-  error JSON::ParserError do
-    status 400
-    json error: 'Invalid JSON', message: env['sinatra.error'].message
-  end
-
-  error ScriptEngine::ScriptExecutionError do
-    status 422
-    json error: 'Script execution failed', message: env['sinatra.error'].message
-  end
-
-  error ScriptFactory::UnknownActionError do
-    status 400
-    json error: 'Unknown action', message: env['sinatra.error'].message
-  end
-
-  error ScriptFactory::ScriptGenerationError do
-    status 500
-    json error: 'Script generation failed', message: env['sinatra.error'].message
-  end
-
-  error ArgumentError do
-    status 400
-    json error: 'Invalid argument', message: env['sinatra.error'].message
-  end
-
-  error StandardError do
-    LOGGER.error(env['sinatra.error'])
-    status 500
-    json error: 'Internal server error', message: 'An unexpected error occurred'
+    def script_repository
+      @script_repository ||= begin
+        moneta_repo = MonetaRepository.new(settings.moneta_store)
+        ScriptRepository.new(moneta_repo)
+      end
+    end
   end
 
   # Health Check
@@ -153,7 +136,7 @@ class TyphoonApp < Sinatra::Base
     script_id = params[:id]
     LOGGER.info("Executing stored script: #{script_id}")
 
-    script_factory = ScriptFactory.new(settings.moneta_store)
+    script_factory = ScriptFactory.new(script_repository)
     script_engine = ScriptEngine.new
 
     script = script_factory.get(script_id)
@@ -171,7 +154,7 @@ class TyphoonApp < Sinatra::Base
     validate_schema!(payload, FACTORY_SCHEMA)
 
     LOGGER.info("Creating script for action: #{payload['action']}")
-    script_factory = ScriptFactory.new(settings.moneta_store)
+    script_factory = ScriptFactory.new(script_repository)
     script_id = script_factory.build(payload)
 
     status 201
@@ -182,8 +165,7 @@ class TyphoonApp < Sinatra::Base
     script_id = params[:id]
     LOGGER.info("Retrieving script: #{script_id}")
 
-    script_factory = ScriptFactory.new(settings.moneta_store)
-    script = script_factory.get(script_id)
+    script = script_repository.find!(script_id)
 
     content_type :json
     status 200
