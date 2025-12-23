@@ -37,13 +37,23 @@ bundle exec rake db:create
 The application requires Redis for Sidekiq:
 ```bash
 brew install redis  # If not installed
-redis-server &
+redis-server --daemonize yes  # Start Redis in background
 foreman start
 ```
 
 This starts two processes (defined in Procfile):
 - `web`: Puma web server on port 4567
 - `worker`: Sidekiq background job processor
+
+**Important**: If you don't have foreman installed:
+```bash
+gem install foreman
+```
+
+**Sidekiq Scheduler Requirements**:
+- `connection_pool` gem must be < 3.0 for Sidekiq 7.x compatibility (pinned to ~> 2.4 in Gemfile)
+- `sidekiq-scheduler` must be required in worker file (workers/task_executor_worker.rb)
+- Schedule configuration must be under `:scheduler:` key in config/sidekiq.yml (not top-level `:schedule:`)
 
 ### Testing
 

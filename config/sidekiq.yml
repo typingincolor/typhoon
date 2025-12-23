@@ -6,8 +6,9 @@
 :queues:
   - default
 
-:schedule:
-  check_tasks:
-    cron: '*/20 * * * * *'  # Every 20 seconds
-    class: TaskExecutorWorker
-    queue: default
+:scheduler:
+  :schedule:
+    check_tasks:
+      cron: '*/20 * * * * *'  # Every 20 seconds
+      class: TaskExecutorWorker
+      queue: default

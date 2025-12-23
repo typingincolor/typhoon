@@ -44,3 +44,4 @@ Thumbs.db
 
 # Misc
 npm-debug.log
+*.rdb

@@ -14,6 +14,7 @@ gem 'sqlite3', '~> 1.6'
 # Background jobs
 gem 'sidekiq', '~> 7.2'
 gem 'sidekiq-scheduler', '~> 5.0'
+gem 'connection_pool', '~> 2.4'  # Pin to 2.x for Sidekiq 7.x compatibility
 
 # Utilities
 gem 'chronic', '~> 0.10'

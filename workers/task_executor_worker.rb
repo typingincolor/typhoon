@@ -1,4 +1,5 @@
 require 'sidekiq'
+require 'sidekiq-scheduler'
 require 'http'
 require 'moneta'
 require_relative '../config/config'
